@@ -1,137 +1,153 @@
 /* =========================================================
-   EXPLOITERX PORTFOLIO
-   JAVASCRIPT + GITHUB API
-   ========================================================= */
+   EXPLOITERX-16GB — CYBERSECURITY PORTFOLIO
+   Main JavaScript
+========================================================= */
+
+"use strict";
 
 
-/* =========================
-   GITHUB CONFIG
-========================= */
+/* =========================================================
+   DOM ELEMENTS
+========================================================= */
 
-// SCHIMBĂ ASTA CU USERNAME-UL TĂU GITHUB
-const GITHUB_USERNAME = "exploiterx-16gb";
+const menuToggle = document.getElementById("menuToggle");
+const navMenu = document.getElementById("navMenu");
+const navLinks = document.querySelectorAll(".nav-link");
 
+const currentYear = document.getElementById("currentYear");
+const backToTop = document.getElementById("backToTop");
 
-/* =========================
-   LOADER
-========================= */
-
-const loader = document.getElementById("loader");
-const loaderProgress = document.getElementById("loader-progress");
-const loaderPercent = document.getElementById("loader-percent");
-
-let progress = 0;
-
-const loadingInterval = setInterval(() => {
-
-    progress += Math.floor(Math.random() * 8) + 3;
-
-    if (progress >= 100) {
-
-        progress = 100;
-
-        clearInterval(loadingInterval);
-
-        loaderProgress.style.width = "100%";
-        loaderPercent.textContent = "100%";
-
-        setTimeout(() => {
-            loader.classList.add("hidden");
-        }, 400);
-    }
-
-    loaderProgress.style.width = `${progress}%`;
-    loaderPercent.textContent = `${progress}%`;
-
-}, 100);
+const typingCommand = document.getElementById("typingCommand");
+const particlesContainer = document.getElementById("particles");
 
 
-/* =========================
-   MOBILE MENU
-========================= */
+/* =========================================================
+   CURRENT YEAR
+========================================================= */
 
-const menuToggle =
-    document.getElementById("menu-toggle");
-
-const navMenu =
-    document.getElementById("nav-menu");
-
-menuToggle.addEventListener("click", () => {
-
-    navMenu.classList.toggle("active");
-
-    menuToggle.textContent =
-        navMenu.classList.contains("active")
-            ? "✕"
-            : "☰";
-
-});
+if (currentYear) {
+    currentYear.textContent = new Date().getFullYear();
+}
 
 
-document.querySelectorAll("#nav-menu a")
-.forEach(link => {
+/* =========================================================
+   MOBILE NAVIGATION
+========================================================= */
 
-    link.addEventListener("click", () => {
+if (menuToggle && navMenu) {
 
-        navMenu.classList.remove("active");
+    menuToggle.addEventListener("click", () => {
 
-        menuToggle.textContent = "☰";
+        menuToggle.classList.toggle("active");
+        navMenu.classList.toggle("active");
+
+        const isOpen = navMenu.classList.contains("active");
+
+        menuToggle.setAttribute(
+            "aria-expanded",
+            isOpen ? "true" : "false"
+        );
+
+    });
+
+
+    navLinks.forEach(link => {
+
+        link.addEventListener("click", () => {
+
+            menuToggle.classList.remove("active");
+            navMenu.classList.remove("active");
+
+            menuToggle.setAttribute(
+                "aria-expanded",
+                "false"
+            );
+
+        });
+
+    });
+
+}
+
+
+/* =========================================================
+   SMOOTH SCROLL
+========================================================= */
+
+document.querySelectorAll('a[href^="#"]').forEach(link => {
+
+    link.addEventListener("click", function (event) {
+
+        const targetId = this.getAttribute("href");
+
+        if (!targetId || targetId === "#") {
+            return;
+        }
+
+        const target = document.querySelector(targetId);
+
+        if (!target) {
+            return;
+        }
+
+        event.preventDefault();
+
+        target.scrollIntoView({
+            behavior: "smooth",
+            block: "start"
+        });
 
     });
 
 });
 
 
-/* =========================
+/* =========================================================
    TYPING EFFECT
-========================= */
+========================================================= */
 
-const typingText =
-    document.getElementById("typing-text");
-
-const phrases = [
-    "Python Developer",
-    "Cybersecurity Learner",
-    "Web Developer",
-    "Linux Enthusiast",
-    "Security Researcher"
+const commands = [
+    "whoami",
+    "cat profile.txt",
+    "./security_lab.sh",
+    "nmap --help",
+    "git status",
+    "python3 security.py"
 ];
 
-let phraseIndex = 0;
+let commandIndex = 0;
 let characterIndex = 0;
 let deleting = false;
 
-function typeEffect() {
 
-    const phrase =
-        phrases[phraseIndex];
+function typeCommand() {
+
+    if (!typingCommand) {
+        return;
+    }
+
+    const currentCommand = commands[commandIndex];
 
     if (!deleting) {
 
-        typingText.textContent =
-            phrase.substring(
-                0,
-                characterIndex + 1
-            );
+        typingCommand.textContent =
+            currentCommand.substring(0, characterIndex + 1);
 
         characterIndex++;
 
-        if (characterIndex === phrase.length) {
+        if (characterIndex === currentCommand.length) {
 
             deleting = true;
 
-            setTimeout(typeEffect, 1500);
+            setTimeout(typeCommand, 1800);
 
             return;
         }
 
     } else {
 
-        typingText.textContent =
-            phrase.substring(
-                0,
-                characterIndex - 1
-            );
+        typingCommand.textContent =
+            currentCommand.substring(0, characterIndex - 1);
 
         characterIndex--;
 
@@ -139,510 +155,392 @@ function typeEffect() {
 
             deleting = false;
 
-            phraseIndex++;
-
-            if (phraseIndex >= phrases.length) {
-                phraseIndex = 0;
-            }
+            commandIndex =
+                (commandIndex + 1) % commands.length;
 
         }
 
     }
 
     setTimeout(
-        typeEffect,
-        deleting ? 45 : 80
+        typeCommand,
+        deleting ? 45 : 90
     );
 }
 
-typeEffect();
+
+typeCommand();
 
 
-/* =========================
-   GITHUB API
-========================= */
+/* =========================================================
+   PARTICLE SYSTEM
+========================================================= */
 
-async function loadGitHub() {
+function createParticles() {
 
-    const projectsContainer =
-        document.getElementById("github-projects");
-
-    const repoCount =
-        document.getElementById("repo-count");
-
-    const followersCount =
-        document.getElementById("followers-count");
-
-    const followingCount =
-        document.getElementById("following-count");
-
-    const profileLink =
-        document.getElementById("github-profile-link");
-
-    const contactLink =
-        document.getElementById("github-contact");
-
-
-    if (
-        !GITHUB_USERNAME ||
-        GITHUB_USERNAME === "USERNAME-UL-TAU"
-    ) {
-
-        projectsContainer.innerHTML = `
-            <div class="github-loading">
-                <span>$</span>
-                Configurează username-ul GitHub în script.js
-            </div>
-        `;
-
+    if (!particlesContainer) {
         return;
     }
 
+    const particleCount =
+        window.innerWidth < 768 ? 25 : 50;
 
-    try {
+    particlesContainer.innerHTML = "";
 
-        /*
-         * Get GitHub profile
-         */
+    for (let i = 0; i < particleCount; i++) {
 
-        const userResponse =
-            await fetch(
-                `https://api.github.com/users/${encodeURIComponent(GITHUB_USERNAME)}`
-            );
+        const particle =
+            document.createElement("span");
 
+        particle.classList.add("particle");
 
-        if (!userResponse.ok) {
-            throw new Error("GitHub user not found");
-        }
+        particle.style.left =
+            `${Math.random() * 100}%`;
 
+        particle.style.top =
+            `${Math.random() * 100}%`;
 
-        const user =
-            await userResponse.json();
+        particle.style.animationDelay =
+            `${Math.random() * 8}s`;
 
+        particle.style.animationDuration =
+            `${5 + Math.random() * 8}s`;
 
-        /*
-         * Get repositories
-         */
+        particle.style.opacity =
+            `${0.2 + Math.random() * 0.6}`;
 
-        const repoResponse =
-            await fetch(
-                `https://api.github.com/users/${encodeURIComponent(GITHUB_USERNAME)}/repos?sort=updated&per_page=100`
-            );
-
-
-        if (!repoResponse.ok) {
-            throw new Error("Could not load repositories");
-        }
-
-
-        const repositories =
-            await repoResponse.json();
-
-
-        /*
-         * Statistics
-         */
-
-        repoCount.textContent =
-            user.public_repos ?? repositories.length;
-
-        followersCount.textContent =
-            user.followers ?? 0;
-
-        followingCount.textContent =
-            user.following ?? 0;
-
-
-        /*
-         * Profile links
-         */
-
-        profileLink.href =
-            user.html_url;
-
-        contactLink.href =
-            user.html_url;
-
-
-        /*
-         * Clear loading message
-         */
-
-        projectsContainer.innerHTML = "";
-
-
-        /*
-         * No repositories
-         */
-
-        if (!repositories.length) {
-
-            projectsContainer.innerHTML = `
-                <div class="github-loading">
-                    <span>$</span>
-                    Nu există repository-uri publice momentan.
-                </div>
-            `;
-
-            return;
-        }
-
-
-        /*
-         * Display repositories
-         */
-
-        repositories.forEach((repo) => {
-
-            const card =
-                document.createElement("article");
-
-            card.className = "project-card";
-
-
-            const language =
-                repo.language || "Code";
-
-
-            const description =
-                repo.description ||
-                "Proiect GitHub fără descriere.";
-
-
-            const updated =
-                new Date(repo.updated_at)
-                    .toLocaleDateString("ro-RO");
-
-
-            card.innerHTML = `
-
-                <div class="project-top">
-
-                    <span class="project-status">
-                        ● PUBLIC
-                    </span>
-
-                    <span class="project-language">
-                        ${escapeHTML(language)}
-                    </span>
-
-                </div>
-
-
-                <div class="project-icon">
-                    ${getLanguageIcon(language)}
-                </div>
-
-
-                <h3>
-                    ${escapeHTML(repo.name)}
-                </h3>
-
-
-                <p>
-                    ${escapeHTML(description)}
-                </p>
-
-
-                <div class="project-tags">
-
-                    <span>
-                        ${escapeHTML(language)}
-                    </span>
-
-                    <span>
-                        ⭐ ${repo.stargazers_count}
-                    </span>
-
-                    <span>
-                        🍴 ${repo.forks_count}
-                    </span>
-
-                </div>
-
-
-                <div class="project-links">
-
-                    <a
-                        href="${repo.html_url}"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                    >
-                        GitHub →
-                    </a>
-
-                    ${
-                        repo.homepage
-                            ? `
-                                <a
-                                    href="${repo.homepage}"
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                >
-                                    Demo →
-                                </a>
-                              `
-                            : ""
-                    }
-
-                </div>
-
-
-                <small
-                    style="
-                        display:block;
-                        margin-top:18px;
-                        color:#687582;
-                        font-family:monospace;
-                        font-size:.65rem;
-                    "
-                >
-                    Updated: ${updated}
-                </small>
-
-            `;
-
-
-            projectsContainer.appendChild(card);
-
-        });
-
-
-        /*
-         * Animate cards
-         */
-
-        document
-            .querySelectorAll(".project-card")
-            .forEach((card, index) => {
-
-                card.style.opacity = "0";
-
-                setTimeout(() => {
-
-                    card.style.animation =
-                        "fadeUp .6s ease forwards";
-
-                }, index * 80);
-
-            });
-
-
-    } catch (error) {
-
-        console.error(
-            "GitHub API error:",
-            error
-        );
-
-
-        projectsContainer.innerHTML = `
-
-            <div class="github-loading">
-
-                <span>$ ERROR:</span>
-
-                Nu am putut încărca proiectele GitHub.
-
-                <br><br>
-
-                Verifică username-ul GitHub.
-
-            </div>
-
-        `;
-
+        particlesContainer.appendChild(particle);
     }
-
 }
 
 
-/* =========================
-   HTML ESCAPE
-========================= */
-
-function escapeHTML(value) {
-
-    const div =
-        document.createElement("div");
-
-    div.textContent =
-        String(value);
-
-    return div.innerHTML;
-}
+createParticles();
 
 
-/* =========================
-   LANGUAGE ICON
-========================= */
-
-function getLanguageIcon(language) {
-
-    const icons = {
-
-        JavaScript: "🟨",
-        TypeScript: "🔷",
-        Python: "🐍",
-        HTML: "🌐",
-        CSS: "🎨",
-        Java: "☕",
-        C: "⚙️",
-        "C++": "⚙️",
-        "C#": "🎮",
-        PHP: "🐘",
-        Rust: "🦀",
-        Go: "🐹",
-        Shell: "💻"
-
-    };
-
-    return icons[language] || "📁";
-}
-
-
-/* =========================
-   START GITHUB
-========================= */
-
-loadGitHub();
-
-
-/* =========================
-   BACK TO TOP
-========================= */
-
-const backToTop =
-    document.getElementById("back-to-top");
-
-window.addEventListener("scroll", () => {
-
-    if (window.scrollY > 500) {
-        backToTop.classList.add("show");
-    } else {
-        backToTop.classList.remove("show");
-    }
-
-});
-
-
-backToTop.addEventListener("click", () => {
-
-    window.scrollTo({
-        top: 0,
-        behavior: "smooth"
-    });
-
-});
-
-
-/* =========================
+/* =========================================================
    ACTIVE NAVIGATION
-========================= */
+========================================================= */
 
 const sections =
     document.querySelectorAll("section[id]");
 
-const navLinks =
-    document.querySelectorAll("#nav-menu a");
 
+function updateActiveNavigation() {
 
-window.addEventListener("scroll", () => {
-
-    let current = "";
+    const scrollPosition =
+        window.scrollY + 180;
 
     sections.forEach(section => {
 
-        const top =
-            section.offsetTop - 160;
+        const sectionTop =
+            section.offsetTop;
 
-        if (window.scrollY >= top) {
-            current = section.id;
+        const sectionHeight =
+            section.offsetHeight;
+
+        const sectionId =
+            section.getAttribute("id");
+
+        if (
+            scrollPosition >= sectionTop &&
+            scrollPosition < sectionTop + sectionHeight
+        ) {
+
+            navLinks.forEach(link => {
+
+                link.classList.remove("active");
+
+                if (
+                    link.getAttribute("href") ===
+                    `#${sectionId}`
+                ) {
+                    link.classList.add("active");
+                }
+
+            });
+
         }
 
     });
 
+}
 
-    navLinks.forEach(link => {
 
-        link.classList.remove("active");
+window.addEventListener(
+    "scroll",
+    updateActiveNavigation,
+    { passive: true }
+);
 
-        if (
-            link.getAttribute("href") ===
-            `#${current}`
-        ) {
 
-            link.classList.add("active");
+/* =========================================================
+   BACK TO TOP
+========================================================= */
 
+function updateBackToTop() {
+
+    if (!backToTop) {
+        return;
+    }
+
+    if (window.scrollY > 600) {
+
+        backToTop.classList.add("visible");
+
+    } else {
+
+        backToTop.classList.remove("visible");
+
+    }
+
+}
+
+
+window.addEventListener(
+    "scroll",
+    updateBackToTop,
+    { passive: true }
+);
+
+
+if (backToTop) {
+
+    backToTop.addEventListener("click", () => {
+
+        window.scrollTo({
+            top: 0,
+            behavior: "smooth"
+        });
+
+    });
+
+}
+
+
+/* =========================================================
+   SCROLL REVEAL
+========================================================= */
+
+const revealElements = document.querySelectorAll(
+    ".skill-card, " +
+    ".project-card, " +
+    ".vulnerability-card, " +
+    ".info-card, " +
+    ".contact-card, " +
+    ".status-card, " +
+    ".lab-terminal, " +
+    ".github-card"
+);
+
+
+const revealObserver =
+    new IntersectionObserver(
+        (entries, observer) => {
+
+            entries.forEach(entry => {
+
+                if (entry.isIntersecting) {
+
+                    entry.target.classList.add("revealed");
+
+                    observer.unobserve(
+                        entry.target
+                    );
+
+                }
+
+            });
+
+        },
+        {
+            threshold: 0.12,
+            rootMargin: "0px 0px -50px 0px"
         }
+    );
+
+
+revealElements.forEach(element => {
+
+    element.classList.add("reveal");
+
+    revealObserver.observe(element);
+
+});
+
+
+/* =========================================================
+   STAGGERED CARD ANIMATIONS
+========================================================= */
+
+const cardGroups = [
+    ".skill-card",
+    ".project-card",
+    ".vulnerability-card",
+    ".contact-card"
+];
+
+
+cardGroups.forEach(selector => {
+
+    const cards =
+        document.querySelectorAll(selector);
+
+    cards.forEach((card, index) => {
+
+        card.style.setProperty(
+            "--animation-delay",
+            `${index * 70}ms`
+        );
 
     });
 
 });
 
 
-/* =========================
-   TERMINAL EFFECT
-========================= */
+/* =========================================================
+   TERMINAL GLITCH EFFECT
+========================================================= */
 
-const terminalOutputs =
-    document.querySelectorAll(".terminal-output");
+const glitchElements =
+    document.querySelectorAll(
+        ".hero-title, .section-heading h2"
+    );
 
-terminalOutputs.forEach((element, index) => {
 
-    const text =
-        element.textContent;
+function randomGlitch() {
 
-    element.textContent = "";
+    if (glitchElements.length === 0) {
+        return;
+    }
 
-    let char = 0;
+    const element =
+        glitchElements[
+            Math.floor(
+                Math.random() *
+                glitchElements.length
+            )
+        ];
+
+    element.classList.add("glitch-active");
 
     setTimeout(() => {
 
-        const interval =
-            setInterval(() => {
+        element.classList.remove(
+            "glitch-active"
+        );
 
-                element.textContent =
-                    text.substring(0, char + 1);
+    }, 180);
 
-                char++;
+}
 
-                if (char >= text.length) {
-                    clearInterval(interval);
-                }
 
-            }, 25);
+setInterval(
+    randomGlitch,
+    4500
+);
 
-    }, 1000 + index * 700);
+
+/* =========================================================
+   TERMINAL STATUS CLOCK
+========================================================= */
+
+function updateTerminalTime() {
+
+    const timeElements =
+        document.querySelectorAll(
+            "[data-terminal-time]"
+        );
+
+    if (!timeElements.length) {
+        return;
+    }
+
+    const now = new Date();
+
+    const hours =
+        String(now.getHours()).padStart(2, "0");
+
+    const minutes =
+        String(now.getMinutes()).padStart(2, "0");
+
+    const seconds =
+        String(now.getSeconds()).padStart(2, "0");
+
+    const time =
+        `${hours}:${minutes}:${seconds}`;
+
+    timeElements.forEach(element => {
+        element.textContent = time;
+    });
+
+}
+
+
+setInterval(
+    updateTerminalTime,
+    1000
+);
+
+updateTerminalTime();
+
+
+/* =========================================================
+   SECURITY CARD HOVER EFFECT
+========================================================= */
+
+const securityCards =
+    document.querySelectorAll(
+        ".vulnerability-card"
+    );
+
+
+securityCards.forEach(card => {
+
+    card.addEventListener(
+        "mouseenter",
+        () => {
+
+            card.classList.add(
+                "security-hover"
+            );
+
+        }
+    );
+
+
+    card.addEventListener(
+        "mouseleave",
+        () => {
+
+            card.classList.remove(
+                "security-hover"
+            );
+
+        }
+    );
 
 });
 
 
-/* =========================
-   PROJECT CARD TILT
-========================= */
+/* =========================================================
+   MOUSE PARALLAX EFFECT
+========================================================= */
 
-document
-    .addEventListener("mousemove", (event) => {
+const heroTerminal =
+    document.querySelector(".hero-terminal");
 
-        if (window.innerWidth < 800) return;
 
-        const cards =
-            document.querySelectorAll(".project-card");
+if (
+    heroTerminal &&
+    window.matchMedia("(pointer: fine)").matches
+) {
 
-        cards.forEach(card => {
+    heroTerminal.addEventListener(
+        "mousemove",
+        event => {
 
             const rect =
-                card.getBoundingClientRect();
-
-            if (
-                event.clientX < rect.left ||
-                event.clientX > rect.right ||
-                event.clientY < rect.top ||
-                event.clientY > rect.bottom
-            ) {
-                return;
-            }
+                heroTerminal.getBoundingClientRect();
 
             const x =
                 event.clientX - rect.left;
@@ -651,58 +549,183 @@ document
                 event.clientY - rect.top;
 
             const rotateX =
-                ((y - rect.height / 2) /
-                    (rect.height / 2)) * -2;
+                ((y / rect.height) - 0.5) * -5;
 
             const rotateY =
-                ((x - rect.width / 2) /
-                    (rect.width / 2)) * 2;
+                ((x / rect.width) - 0.5) * 5;
 
-            card.style.transform =
-                `perspective(800px)
+            heroTerminal.style.transform =
+                `perspective(900px)
                  rotateX(${rotateX}deg)
                  rotateY(${rotateY}deg)
-                 translateY(-7px)`;
+                 translateY(-3px)`;
 
-        });
+        }
+    );
+
+
+    heroTerminal.addEventListener(
+        "mouseleave",
+        () => {
+
+            heroTerminal.style.transform =
+                "";
+
+        }
+    );
+
+}
+
+
+/* =========================================================
+   KEYBOARD SHORTCUT
+========================================================= */
+
+document.addEventListener(
+    "keydown",
+    event => {
+
+        /*
+         * Press "/" to focus the portfolio search
+         * if a search element is added later.
+         */
+
+        if (
+            event.key === "/" &&
+            !["INPUT", "TEXTAREA"].includes(
+                document.activeElement.tagName
+            )
+        ) {
+
+            const search =
+                document.querySelector(
+                    "#portfolioSearch"
+                );
+
+            if (search) {
+
+                event.preventDefault();
+
+                search.focus();
+
+            }
+
+        }
+
+    }
+);
+
+
+/* =========================================================
+   EASTER EGG
+========================================================= */
+
+let konamiCode = [];
+
+const konamiSequence = [
+    "ArrowUp",
+    "ArrowUp",
+    "ArrowDown",
+    "ArrowDown",
+    "ArrowLeft",
+    "ArrowRight",
+    "ArrowLeft",
+    "ArrowRight"
+];
+
+
+document.addEventListener(
+    "keydown",
+    event => {
+
+        konamiCode.push(event.key);
+
+        if (konamiCode.length >
+            konamiSequence.length) {
+
+            konamiCode.shift();
+
+        }
+
+        const matches =
+            konamiCode.every(
+                (key, index) =>
+                    key === konamiSequence[index]
+            );
+
+        if (
+            matches &&
+            konamiCode.length ===
+            konamiSequence.length
+        ) {
+
+            document.body.classList.toggle(
+                "matrix-mode"
+            );
+
+            konamiCode = [];
+
+        }
+
+    }
+);
+
+
+/* =========================================================
+   ONLINE STATUS
+========================================================= */
+
+function setOnlineStatus() {
+
+    const statusElements =
+        document.querySelectorAll(
+            ".status-online"
+        );
+
+    statusElements.forEach(element => {
+
+        element.textContent =
+            navigator.onLine
+                ? "ONLINE"
+                : "OFFLINE";
 
     });
 
-
-document.addEventListener("mouseleave", () => {
-
-    document
-        .querySelectorAll(".project-card")
-        .forEach(card => {
-
-            card.style.transform =
-                "translateY(0)";
-
-        });
-
-});
+}
 
 
-/* =========================
-   CURRENT YEAR
-========================= */
+window.addEventListener(
+    "online",
+    setOnlineStatus
+);
 
-document.getElementById(
-    "current-year"
-).textContent =
-    new Date().getFullYear();
+window.addEventListener(
+    "offline",
+    setOnlineStatus
+);
+
+setOnlineStatus();
 
 
-/* =========================
-   CONSOLE
-========================= */
+/* =========================================================
+   INITIALIZE
+========================================================= */
 
-console.log(
-    "%c EXPLOITERX PORTFOLIO ",
-    "color:#00ff9c;font-size:20px;font-weight:bold;"
+document.body.classList.add(
+    "js-enabled"
 );
 
 console.log(
-    "%c GitHub API initialized.",
-    "color:#84909d;font-size:13px;"
+    "%c[ EXPLOITERX-16GB ]",
+    "font-size: 18px; font-weight: bold;"
+);
+
+console.log(
+    "%cCybersecurity Portfolio initialized.",
+    "font-size: 13px;"
+);
+
+console.log(
+    "%cAuthorized security testing only.",
+    "font-size: 12px;"
 );
