@@ -9,7 +9,7 @@
 ========================= */
 
 // SCHIMBĂ ASTA CU USERNAME-UL TĂU GITHUB
-const GITHUB_USERNAME = "ExploiterX-16gb";
+const GITHUB_USERNAME = "exploiterx-16gb";
 
 
 /* =========================
