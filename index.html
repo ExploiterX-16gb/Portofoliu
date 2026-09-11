@@ -1,0 +1,725 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>ExploiterX | Mentenanță</title>
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+    }
+
+    body {
+      background: #020403;
+      color: #dfffe9;
+      font-family: "Courier New", Consolas, monospace;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    /* =========================================================
+       MATRIX BACKGROUND
+       ========================================================= */
+
+    #matrix {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+      opacity: 0.32;
+    }
+
+    /* Linii subtile peste ecran */
+    body::after {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 5;
+
+      background:
+        repeating-linear-gradient(
+          to bottom,
+          rgba(0, 255, 100, 0.025) 0px,
+          rgba(0, 255, 100, 0.025) 1px,
+          transparent 1px,
+          transparent 4px
+        );
+    }
+
+    /* =========================================================
+       VIGNETTE
+       ========================================================= */
+
+    .vignette {
+      position: fixed;
+      inset: 0;
+      z-index: 1;
+      pointer-events: none;
+
+      background:
+        radial-gradient(
+          circle at center,
+          transparent 20%,
+          rgba(0, 0, 0, 0.35) 65%,
+          rgba(0, 0, 0, 0.92) 100%
+        );
+    }
+
+    /* =========================================================
+       MAIN PANEL
+       ========================================================= */
+
+    .panel {
+      position: relative;
+      z-index: 3;
+
+      width: min(900px, 92%);
+      padding: 55px 35px;
+
+      text-align: center;
+
+      background: rgba(2, 10, 6, 0.82);
+
+      border: 1px solid rgba(48, 255, 113, 0.35);
+      border-radius: 18px;
+
+      box-shadow:
+        0 0 35px rgba(0, 255, 90, 0.08),
+        0 0 120px rgba(0, 255, 90, 0.04),
+        inset 0 0 50px rgba(0, 255, 90, 0.025);
+
+      backdrop-filter: blur(7px);
+
+      animation: panelAppear 1s ease forwards;
+    }
+
+    @keyframes panelAppear {
+      from {
+        opacity: 0;
+        transform: translateY(20px) scale(0.98);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    /* =========================================================
+       TERMINAL HEADER
+       ========================================================= */
+
+    .terminal {
+      position: absolute;
+      top: 15px;
+      left: 20px;
+
+      color: #568b68;
+      font-size: 11px;
+      text-align: left;
+      letter-spacing: 1px;
+    }
+
+    .terminal span {
+      color: #39ff78;
+    }
+
+    /* =========================================================
+       MINI HACKER
+       ========================================================= */
+
+    .hacker {
+      position: relative;
+
+      width: 190px;
+      height: 185px;
+
+      margin: 0 auto 15px;
+
+      filter:
+        drop-shadow(0 0 12px rgba(0, 255, 100, 0.2));
+    }
+
+    /* Semnul întrebării */
+
+    .question {
+      position: absolute;
+
+      top: -5px;
+      right: 4px;
+
+      width: 48px;
+      height: 48px;
+
+      display: flex;
+      justify-content: center;
+      align-items: center;
+
+      border: 2px solid #39ff78;
+      border-radius: 50%;
+
+      background: #031008;
+
+      color: #39ff78;
+
+      font-size: 28px;
+      font-weight: bold;
+
+      box-shadow:
+        0 0 15px rgba(0, 255, 100, 0.25);
+
+      animation: questionFloat 1.8s ease-in-out infinite;
+    }
+
+    @keyframes questionFloat {
+      0%,
+      100% {
+        transform: translateY(0);
+      }
+
+      50% {
+        transform: translateY(-8px);
+      }
+    }
+
+    /* Cap */
+
+    .head {
+      position: absolute;
+
+      top: 25px;
+      left: 63px;
+
+      width: 64px;
+      height: 64px;
+
+      border: 2px solid #40ff7b;
+      border-radius: 50%;
+
+      background: #07130c;
+    }
+
+    /* Glugă */
+
+    .hood {
+      position: absolute;
+
+      top: 14px;
+      left: 48px;
+
+      width: 94px;
+      height: 93px;
+
+      border: 2px solid #2eff70;
+      border-radius: 50% 50% 42% 42%;
+
+      background: #041009;
+
+      z-index: -1;
+    }
+
+    /* Ochii */
+
+    .eye {
+      position: absolute;
+
+      top: 47px;
+
+      width: 8px;
+      height: 5px;
+
+      background: #39ff78;
+
+      box-shadow: 0 0 8px #39ff78;
+    }
+
+    .eye.left {
+      left: 80px;
+    }
+
+    .eye.right {
+      left: 105px;
+    }
+
+    /* Masca */
+
+    .mask {
+      position: absolute;
+
+      top: 62px;
+      left: 74px;
+
+      width: 43px;
+      height: 21px;
+
+      border: 1px solid #1ed45d;
+      border-radius: 5px;
+
+      background: #020604;
+    }
+
+    /* Corp */
+
+    .body {
+      position: absolute;
+
+      left: 43px;
+      top: 91px;
+
+      width: 105px;
+      height: 55px;
+
+      border: 2px solid #36f976;
+
+      border-bottom: none;
+
+      border-radius: 45px 45px 0 0;
+
+      background: #06130b;
+    }
+
+    /* Calculator / laptop */
+
+    .laptop {
+      position: absolute;
+
+      left: 25px;
+      top: 127px;
+
+      width: 140px;
+      height: 46px;
+    }
+
+    .screen {
+      width: 105px;
+      height: 34px;
+
+      margin: auto;
+
+      border: 2px solid #39ff78;
+
+      background: #020704;
+
+      box-shadow:
+        inset 0 0 15px rgba(0, 255, 100, 0.1),
+        0 0 10px rgba(0, 255, 100, 0.08);
+    }
+
+    .screen::after {
+      content: ">_";
+
+      display: block;
+
+      padding: 7px;
+
+      color: #39ff78;
+
+      text-align: left;
+
+      font-size: 10px;
+    }
+
+    .keyboard {
+      width: 140px;
+      height: 9px;
+
+      margin-top: 2px;
+
+      background: #183d27;
+
+      clip-path: polygon(
+        8% 0,
+        92% 0,
+        100% 100%,
+        0 100%
+      );
+    }
+
+    /* =========================================================
+       TEXT
+       ========================================================= */
+
+    .status {
+      color: #42ff81;
+
+      font-size: 13px;
+      font-weight: bold;
+
+      letter-spacing: 4px;
+
+      margin-bottom: 14px;
+
+      text-shadow:
+        0 0 10px rgba(0, 255, 100, 0.45);
+    }
+
+    h1 {
+      font-size: clamp(2.2rem, 7vw, 5rem);
+
+      line-height: 1;
+
+      margin-bottom: 20px;
+
+      color: #e7fff0;
+
+      text-shadow:
+        0 0 20px rgba(0, 255, 100, 0.12);
+    }
+
+    h1 span {
+      color: #39ff78;
+    }
+
+    .description {
+      max-width: 620px;
+
+      margin: auto;
+
+      color: #91aa9b;
+
+      font-size: 15px;
+
+      line-height: 1.8;
+    }
+
+    /* =========================================================
+       PROGRESS
+       ========================================================= */
+
+    .progress-container {
+      max-width: 480px;
+
+      margin: 30px auto 20px;
+    }
+
+    .progress-label {
+      display: flex;
+      justify-content: space-between;
+
+      margin-bottom: 7px;
+
+      color: #557764;
+
+      font-size: 10px;
+    }
+
+    .progress {
+      width: 100%;
+      height: 5px;
+
+      background: #0c1b12;
+
+      overflow: hidden;
+
+      border-radius: 20px;
+    }
+
+    .progress-bar {
+      width: 73%;
+      height: 100%;
+
+      background: #39ff78;
+
+      box-shadow:
+        0 0 12px rgba(57, 255, 120, 0.8);
+
+      animation: progressPulse 2s ease-in-out infinite;
+    }
+
+    @keyframes progressPulse {
+      0%,
+      100% {
+        opacity: 0.7;
+      }
+
+      50% {
+        opacity: 1;
+      }
+    }
+
+    /* =========================================================
+       BUTTON
+       ========================================================= */
+
+    .button {
+      display: inline-block;
+
+      margin-top: 15px;
+
+      padding: 11px 22px;
+
+      color: #39ff78;
+
+      text-decoration: none;
+
+      border: 1px solid rgba(57, 255, 120, 0.35);
+      border-radius: 7px;
+
+      font-size: 12px;
+
+      transition: 0.25s;
+    }
+
+    .button:hover {
+      background: rgba(57, 255, 120, 0.08);
+
+      box-shadow:
+        0 0 20px rgba(57, 255, 120, 0.12);
+
+      transform: translateY(-2px);
+    }
+
+    /* =========================================================
+       FOOTER
+       ========================================================= */
+
+    .footer {
+      margin-top: 28px;
+
+      color: #40594a;
+
+      font-size: 10px;
+
+      letter-spacing: 1px;
+    }
+
+    .cursor {
+      color: #39ff78;
+
+      animation: blink 1s infinite;
+    }
+
+    @keyframes blink {
+      0%,
+      45% {
+        opacity: 1;
+      }
+
+      46%,
+      100% {
+        opacity: 0;
+      }
+    }
+
+    /* =========================================================
+       MOBILE
+       ========================================================= */
+
+    @media (max-width: 600px) {
+
+      .panel {
+        padding: 42px 20px 30px;
+      }
+
+      .terminal {
+        font-size: 8px;
+      }
+
+      .hacker {
+        transform: scale(0.82);
+        margin-bottom: -5px;
+      }
+
+      h1 {
+        font-size: 2.6rem;
+      }
+
+      .description {
+        font-size: 13px;
+      }
+
+      .status {
+        font-size: 10px;
+        letter-spacing: 2px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- Fundal Matrix -->
+  <canvas id="matrix"></canvas>
+
+  <div class="vignette"></div>
+
+  <main class="panel">
+
+    <div class="terminal">
+      <span>exploiterx</span>@noxerx:~$ system_status
+    </div>
+
+    <!-- Mini hacker -->
+    <div class="hacker">
+
+      <div class="question">?</div>
+
+      <div class="hood"></div>
+
+      <div class="head"></div>
+
+      <div class="eye left"></div>
+      <div class="eye right"></div>
+
+      <div class="mask"></div>
+
+      <div class="body"></div>
+
+      <div class="laptop">
+        <div class="screen"></div>
+        <div class="keyboard"></div>
+      </div>
+
+    </div>
+
+    <div class="status">
+      SYSTEM STATUS // MAINTENANCE
+    </div>
+
+    <h1>
+      Site în <span>mentenanță</span>
+    </h1>
+
+    <p class="description">
+      Portofoliul ExploiterX este momentan în reconstrucție.
+      Se lucrează la o versiune nouă, mai rapidă, mai securizată
+      și mai bine organizată.
+      <br><br>
+      Revenim în curând.
+    </p>
+
+    <div class="progress-container">
+
+      <div class="progress-label">
+        <span>REBUILDING SYSTEM</span>
+        <span>73%</span>
+      </div>
+
+      <div class="progress">
+        <div class="progress-bar"></div>
+      </div>
+
+    </div>
+
+    <a
+      class="button"
+      href="https://github.com/ExploiterX-16gb"
+      target="_blank"
+      rel="noopener noreferrer"
+    >
+      [ ACCESEAZĂ GITHUB ]
+    </a>
+
+    <div class="footer">
+      EXPLOITERX // NOXERX © 2026
+      <span class="cursor">_</span>
+    </div>
+
+  </main>
+
+
+  <script>
+    /*
+      ============================================================
+      MATRIX RAIN
+      Creează efectul de 1 și 0 care curg pe fundal.
+      ============================================================
+    */
+
+    const canvas = document.getElementById("matrix");
+    const ctx = canvas.getContext("2d");
+
+    let width;
+    let height;
+    let columns;
+    let drops;
+
+    function resizeMatrix() {
+      width = canvas.width = window.innerWidth;
+      height = canvas.height = window.innerHeight;
+
+      const fontSize = 15;
+
+      columns = Math.floor(width / fontSize);
+
+      drops = Array(columns).fill(1);
+    }
+
+    resizeMatrix();
+
+    window.addEventListener("resize", resizeMatrix);
+
+    const characters = "01";
+
+    function drawMatrix() {
+
+      /*
+        Fundal semi-transparent pentru a crea impresia
+        că cifrele lasă o urmă în timp ce cad.
+      */
+
+      ctx.fillStyle = "rgba(2, 4, 3, 0.08)";
+      ctx.fillRect(0, 0, width, height);
+
+      ctx.font = "15px monospace";
+
+      for (let i = 0; i < drops.length; i++) {
+
+        const character =
+          characters[
+            Math.floor(Math.random() * characters.length)
+          ];
+
+        /*
+          Verde diferit pentru fiecare caracter.
+        */
+
+        ctx.fillStyle =
+          Math.random() > 0.96
+            ? "#caffda"
+            : "#20d967";
+
+        const x = i * 15;
+        const y = drops[i] * 15;
+
+        ctx.fillText(character, x, y);
+
+        /*
+          Unele coloane pornesc din nou după ce ajung jos.
+        */
+
+        if (
+          y > height &&
+          Math.random() > 0.975
+        ) {
+          drops[i] = 0;
+        }
+
+        drops[i]++;
+      }
+    }
+
+    /*
+      Aproximativ 30 FPS pentru un efect fluid,
+      fără să consume inutil telefonul.
+    */
+
+    setInterval(drawMatrix, 33);
+  </script>
+
+</body>
+</html>
